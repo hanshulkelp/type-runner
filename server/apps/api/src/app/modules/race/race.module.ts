@@ -5,6 +5,7 @@ import { RoomsModule } from '../rooms/rooms.module';
 import { QuotesModule } from '../quotes/quotes.module';
 import { RaceGateway } from './race.gateway';
 import { RaceService } from './race.service';
+import { LeaderboardModule } from '../leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -13,6 +14,8 @@ import { RaceService } from './race.service';
 
     // QuotesModule is imported so RaceService can use QuotesService
     QuotesModule,
+
+    LeaderboardModule, // needed so RaceService can call upsertStats at race end
 
     // JwtModule is needed by RaceGateway to verify tokens on WebSocket connection
     JwtModule.registerAsync({

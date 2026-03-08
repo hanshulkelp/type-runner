@@ -3,12 +3,14 @@ import { Server } from 'socket.io';
 import { RaceResult, RoomStatus, WsEvents } from '@type-runner/shared-types';
 import { RoomsService, RacePlayer } from '../rooms/rooms.service';
 import { QuotesService } from '../quotes/quotes.service';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 @Injectable()
 export class RaceService {
   constructor(
-    private readonly roomsService: RoomsService,
-    private readonly quotesService: QuotesService,
+    private readonly roomsService:       RoomsService,
+    private readonly quotesService:      QuotesService,
+    private readonly leaderboardService: LeaderboardService,
   ) {}
 
   // Runs the 5 second countdown then starts the race
@@ -42,6 +44,16 @@ export class RaceService {
     const results = this.assembleResults(room.players);
 
     server.to(roomId).emit(WsEvents.RACE_END, results);
+
+    // one upsert per player — the only Postgres write in the entire race lifecycle
+    for (const result of results) {
+      await this.leaderboardService.upsertStats({
+        userId:   result.userId,
+        wpm:      result.wpm,
+        accuracy: result.accuracy,
+        position: result.position,
+      });
+    }
   }
 
   // Builds the RaceResult array sorted by finish time, assigning positions

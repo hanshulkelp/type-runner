@@ -9,6 +9,7 @@ import { AuthModule } from './modules/auth/auth.module';
 import { RoomsModule } from './modules/rooms/rooms.module';
 import { QuotesModule } from './modules/quotes/quotes.module';
 import { RaceModule } from './modules/race/race.module';
+import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { RaceModule } from './modules/race/race.module';
     RoomsModule,
     QuotesModule,
     RaceModule,
+    LeaderboardModule,
   ],
   controllers: [AppController],
   providers: [AppService],
