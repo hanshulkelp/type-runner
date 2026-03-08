@@ -6,6 +6,9 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { dbConfig } from '../config/db.config';
 import { UsersModule } from './modules/user/users.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { RoomsModule } from './modules/rooms/rooms.module';
+import { QuotesModule } from './modules/quotes/quotes.module';
+import { RaceModule } from './modules/race/race.module';
 
 @Module({
   imports: [
@@ -18,6 +21,9 @@ import { AuthModule } from './modules/auth/auth.module';
 
     UsersModule,
     AuthModule,
+    RoomsModule,
+    QuotesModule,
+    RaceModule,
   ],
   controllers: [AppController],
   providers: [AppService],
