@@ -1,0 +1,164 @@
+<div class="page">
+  <div class="card">
+    <div class="card__body">
+      <div class="icon-wrap">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+             stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="6" width="20" height="13" rx="2" ry="2"/>
+          <path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M6 14h.01M8 14h4M18 14h.01"/>
+        </svg>
+      </div>
+
+      <h1 class="title">Create Your Account</h1>
+      <p class="subtitle">Join the race and compete with the best.</p>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="field">
+          <label class="field__label" for="username">Username</label>
+          <div class="input-wrap" [class.input-wrap--error]="registerForm.get('username')?.invalid && registerForm.get('username')?.touched">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="8" r="4"/>
+                <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
+              </svg>
+            </span>
+            <input
+              id="username"
+              type="text"
+              class="input"
+              placeholder="racer42"
+              formControlName="username"
+              autocomplete="username"
+            />
+          </div>
+          @if (registerForm.get('username')?.touched) {
+            @if (registerForm.get('username')?.hasError('required')) {
+              <span class="field__error">Username is required.</span>
+            } @else if (registerForm.get('username')?.hasError('minlength')) {
+              <span class="field__error">Must be at least 3 characters.</span>
+            } @else if (registerForm.get('username')?.hasError('maxlength')) {
+              <span class="field__error">Cannot exceed 20 characters.</span>
+            } @else if (registerForm.get('username')?.hasError('pattern') || registerForm.get('username')?.hasError('hasWhitespace')) {
+              <span class="field__error">Only letters, numbers, and underscores allowed.</span>
+            }
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="email">Email Address</label>
+          <div class="input-wrap" [class.input-wrap--error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="2"/>
+                <path d="m2 7 10 7 10-7"/>
+              </svg>
+            </span>
+            <input
+              id="email"
+              type="email"
+              class="input"
+              placeholder="racer@example.com"
+              formControlName="email"
+              autocomplete="email"
+            />
+          </div>
+          @if (registerForm.get('email')?.touched) {
+            @if (registerForm.get('email')?.hasError('required')) {
+              <span class="field__error">Email is required.</span>
+            } @else if (registerForm.get('email')?.hasError('email')) {
+              <span class="field__error">Enter a valid email address.</span>
+            }
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="password">Password</label>
+          <div class="input-wrap" [class.input-wrap--error]="registerForm.get('password')?.invalid && registerForm.get('password')?.touched">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input
+              id="password"
+              type="password"
+              class="input"
+              placeholder="••••••••"
+              formControlName="password"
+              autocomplete="new-password"
+            />
+          </div>
+          @if (registerForm.get('password')?.value) {
+            <div class="strength">
+              <div class="strength__bar">
+                <div class="strength__fill" [attr.data-level]="passwordStrength"></div>
+              </div>
+              <span class="strength__label" [attr.data-level]="passwordStrength">
+                {{ passwordStrength | titlecase }}
+              </span>
+            </div>
+          }
+          @if (registerForm.get('password')?.touched) {
+            @if (registerForm.get('password')?.hasError('required')) {
+              <span class="field__error">Password is required.</span>
+            } @else if (registerForm.get('password')?.hasError('minlength')) {
+              <span class="field__error">Must be at least 8 characters.</span>
+            } @else if (registerForm.get('password')?.hasError('noUppercase')) {
+              <span class="field__error">Must contain at least one uppercase letter.</span>
+            } @else if (registerForm.get('password')?.hasError('noDigit')) {
+              <span class="field__error">Must contain at least one number.</span>
+            } @else if (registerForm.get('password')?.hasError('noSpecial')) {
+              <span class="field__error">Must contain at least one special character (!@#$%...).</span>
+            }
+          }
+        </div>
+
+        <div class="field">
+          <label class="field__label" for="confirmPassword">Confirm Password</label>
+          <div class="input-wrap" [class.input-wrap--error]="registerForm.hasError('mismatch') && registerForm.get('confirmPassword')?.touched">
+            <span class="input-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                   stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              </svg>
+            </span>
+            <input
+              id="confirmPassword"
+              type="password"
+              class="input"
+              placeholder="••••••••"
+              formControlName="confirmPassword"
+              autocomplete="new-password"
+            />
+          </div>
+          @if (registerForm.get('confirmPassword')?.touched) {
+            @if (registerForm.get('confirmPassword')?.hasError('required')) {
+              <span class="field__error">Please confirm your password.</span>
+            } @else if (registerForm.hasError('mismatch')) {
+              <span class="field__error">Passwords do not match.</span>
+            }
+          }
+        </div>
+
+        @if (errorMessage) {
+          <p class="error-msg">{{ errorMessage }}</p>
+        }
+
+        <button type="submit" class="btn-primary" [disabled]="registerForm.invalid">
+          JOIN THE RACE
+        </button>
+      </form>
+    </div>
+
+    <div class="card__footer">
+      <span class="footer-text">Already have an account?&nbsp;
+        <a routerLink="/login" class="footer-link">Sign in</a>
+      </span>
+    </div>
+  </div>
+</div>
