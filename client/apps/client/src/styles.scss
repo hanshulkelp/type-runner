@@ -1,0 +1,179 @@
+/* ── Google Fonts ─────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&display=swap');
+
+/* ── CSS Variables ────────────────────────────────────────── */
+:root {
+  --bg-primary:     #050d1a;
+  --bg-secondary:   #0a1628;
+  --bg-card:        #0d1f35;
+  --bg-input:       #0a1628;
+
+  --accent-primary: #4f6ef7;
+  --accent-hover:   #3d5ce0;
+  --accent-glow:    rgba(79, 110, 247, 0.3);
+
+  --text-primary:   #e8eaf6;
+  --text-secondary: #6b82a8;
+  --text-muted:     #3d5478;
+
+  --border-color:   #1a2d4a;
+  --border-focus:   #4f6ef7;
+
+  --correct:        #4caf7d;
+  --wrong:          #e05c6a;
+  --pending:        #6b82a8;
+
+  --font-mono:      'Share Tech Mono', monospace;
+  --font-display:   'Rajdhani', sans-serif;
+
+  --radius:         12px;
+  --radius-sm:      8px;
+  --transition:     0.2s ease;
+}
+
+/* ── Reset ────────────────────────────────────────────────── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin:     0;
+  padding:    0;
+}
+
+html, body {
+  height:           100%;
+  background-color: var(--bg-primary);
+  color:            var(--text-primary);
+  font-family:      var(--font-mono);
+  font-size:        16px;
+  line-height:      1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography ───────────────────────────────────────────── */
+h1, h2, h3 {
+  font-family:    var(--font-display);
+  font-weight:    700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color:          var(--text-primary);
+}
+
+h1 { font-size: 2.5rem; }
+h2 { font-size: 1.8rem; }
+h3 { font-size: 1.3rem; }
+
+a {
+  color:           var(--accent-primary);
+  text-decoration: none;
+  transition:      color var(--transition);
+
+  &:hover { color: var(--accent-hover); }
+}
+
+/* ── Shared Card ──────────────────────────────────────────── */
+.card {
+  background:    var(--bg-card);
+  border:        1px solid var(--border-color);
+  border-radius: var(--radius);
+  padding:       2rem;
+}
+
+/* ── Shared Button ────────────────────────────────────────── */
+button {
+  font-family:    var(--font-mono);
+  font-size:      0.9rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background:     var(--accent-primary);
+  color:          var(--text-primary);
+  border:         none;
+  border-radius:  var(--radius-sm);
+  padding:        0.85rem 1.5rem;
+  cursor:         pointer;
+  transition:     background var(--transition), box-shadow var(--transition);
+  width:          100%;
+
+  &:hover:not(:disabled) {
+    background: var(--accent-hover);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor:  not-allowed;
+  }
+}
+
+/* ── Shared Input ─────────────────────────────────────────── */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='range'] {
+  font-family:  var(--font-mono);
+  font-size:    0.9rem;
+  background:   var(--bg-input);
+  color:        var(--text-primary);
+  border:       1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding:      0.85rem 1rem;
+  width:        100%;
+  outline:      none;
+  transition:   border-color var(--transition), box-shadow var(--transition);
+
+  &:focus {
+    border-color: var(--border-focus);
+    box-shadow:   0 0 0 3px var(--accent-glow);
+  }
+
+  &::placeholder { color: var(--text-muted); }
+}
+
+/* ── Shared Table ─────────────────────────────────────────── */
+table {
+  width:           100%;
+  border-collapse: collapse;
+  font-family:     var(--font-mono);
+
+  th {
+    font-family:    var(--font-display);
+    font-weight:    600;
+    font-size:      0.85rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color:          var(--text-secondary);
+    padding:        0.75rem 1rem;
+    text-align:     left;
+    border-bottom:  1px solid var(--border-color);
+  }
+
+  td {
+    padding:       0.85rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    color:         var(--text-primary);
+    font-size:     0.9rem;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: rgba(79, 110, 247, 0.05); }
+}
+
+/* ── Error Message ────────────────────────────────────────── */
+.error {
+  color:     var(--wrong);
+  font-size: 0.85rem;
+  padding:   0.5rem 0;
+}
+
+/* ── Page Layout ──────────────────────────────────────────── */
+.page {
+  min-height:     100vh;
+  display:        flex;
+  flex-direction: column;
+}
+
+.container {
+  max-width: 900px;
+  margin:    0 auto;
+  padding:   2rem;
+  width:     100%;
+}

@@ -1,0 +1,32 @@
+<div class="typing-area">
+
+  <!-- quote display — each character gets a css class based on correctness -->
+  <div class="quote-display">
+    @for (char of quoteChars(); track $index) {
+      <span [class]="charClasses()[$index]">{{ char }}</span>
+    }
+  </div>
+
+  <!-- input field — paste and right click disabled to prevent cheating -->
+  <input
+    type="text"
+    class="typing-input"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+    (input)="onInput($event)"
+    (select)="$event.preventDefault()"
+    (paste)="$event.preventDefault()"
+    (contextmenu)="$event.preventDefault()"
+  />
+
+  <!-- live accuracy indicator — updates on every keystroke -->
+  <div class="accuracy-display">
+    <span class="accuracy-label">Accuracy</span>
+    <span class="accuracy-value" [class.accuracy-low]="liveAccuracy() < 80">
+      {{ liveAccuracy() }}%
+    </span>
+  </div>
+
+</div>

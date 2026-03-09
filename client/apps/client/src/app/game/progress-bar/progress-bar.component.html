@@ -1,0 +1,26 @@
+<div class="progress-bars">
+
+  @for (player of sortedPlayers(); track player.userId) {
+    <div class="player-progress">
+
+      <!-- player name and live wpm -->
+      <div class="player-info">
+        <span class="username">{{ player.username }}</span>
+        <span class="wpm">{{ player.wpm }} wpm</span>
+      </div>
+
+      <!-- progress bar track -->
+      <div class="progress-track">
+        <div
+          class="progress-fill"
+          [style.width.%]="player.progress">
+        </div>
+      </div>
+
+      <!-- percentage label -->
+      <span class="progress-label">{{ player.progress }}%</span>
+
+    </div>
+  }
+
+</div>

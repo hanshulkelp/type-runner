@@ -1,0 +1,35 @@
+<div class="waiting-room">
+  <h2>Waiting Room</h2>
+
+  <!-- room ID share box -->
+  <div class="room-id-box">
+    <span class="room-id-label">Room ID</span>
+    <span class="room-id-value">{{ roomId() }}</span>
+    <button class="copy-btn" (click)="copyRoomId()">
+      {{ isCopied() ? 'Copied!' : 'Copy' }}
+    </button>
+  </div>
+
+  <p class="player-count">Players {{ players().length }} / {{ maxPlayers() }}</p>
+
+  <ul class="players-list">
+    @for (player of players(); track player.userId) {
+      <li>{{ player.username }}</li>
+    }
+  </ul>
+
+  @if (isWaitingForPlayers()) {
+    <p class="waiting-message">Waiting for more players...</p>
+  }
+
+  <button
+    class="ready-btn"
+    (click)="onReadyClick()"
+    [disabled]="isReady()">
+    {{ isReady() ? 'Waiting for others...' : 'Ready' }}
+  </button>
+
+  <button class="leave-btn" (click)="onLeaveClick()">
+    Leave Room
+  </button>
+</div>

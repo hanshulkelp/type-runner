@@ -1,0 +1,29 @@
+<div class="join-room">
+  <div class="card">
+    <h2>Join Room</h2>
+    <p class="subtitle">Enter a room ID to jump into a race.</p>
+
+    <div class="form-group">
+      <label for="roomId">Room ID</label>
+      <input
+        id="roomId"
+        type="text"
+        placeholder="Enter 12 character room ID"
+        [value]="roomId()"
+        (input)="onRoomIdChange($any($event.target).value)"
+      />
+    </div>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <button (click)="joinRoom()" [disabled]="isLoading()">
+      {{ isLoading() ? 'Joining...' : 'Hit the Track' }}
+    </button>
+
+    <p class="lobby-link">
+      No room yet? <a routerLink="/lobby/create">Create one</a>
+    </p>
+  </div>
+</div>

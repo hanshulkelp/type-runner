@@ -1,0 +1,41 @@
+<div class="results">
+  <h2>Race Results</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Player</th>
+        <th>WPM</th>
+        <th>Accuracy</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (result of sortedResults(); track result.userId) {
+        <tr [class.left-row]="result.left">
+          <td>{{ result.position }}</td>
+          <td>
+            {{ result.username }}
+            @if (result.left) {
+              <span class="left-badge">LEFT</span>
+            }
+          </td>
+          <td>{{ result.left ? '—' : result.wpm + ' wpm' }}</td>
+          <td>{{ result.left ? '—' : result.accuracy + '%' }}</td>
+          <td>{{ result.left ? 'DNF' : formatTime(result.timeTaken) }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- navigation buttons -->
+  <div class="result-actions">
+    <button class="secondary-btn" (click)="goToLeaderboard()">
+      View Leaderboard
+    </button>
+    <button (click)="goToLobby()">
+      Race Again
+    </button>
+  </div>
+</div>

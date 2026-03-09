@@ -1,0 +1,69 @@
+.leaderboard {
+  min-height:      calc(100vh - 64px);
+  display:         flex;
+  flex-direction:  column;
+  align-items:     center;
+  padding:         3rem 2rem;
+
+  h2 {
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    color:         var(--text-secondary);
+    font-size:     0.85rem;
+    margin-bottom: 3rem;
+    letter-spacing: 0.08em;
+  }
+
+  .leaderboard-table {
+    width:         100%;
+    max-width:     800px;
+    background:    var(--bg-card);
+    border:        1px solid var(--border-color);
+    border-radius: var(--radius);
+    overflow:      hidden;
+
+    // winner row
+    tbody tr:first-child td {
+      color: var(--accent-primary);
+
+      &:first-child { 
+        font-size: 1.1rem;
+      }
+    }
+
+    // rank column
+    td:first-child {
+      color:      var(--text-secondary);
+      font-size:  0.85rem;
+      width:      60px;
+      text-align: center;
+    }
+
+    // wpm column highlight
+    td:nth-child(3) {
+      color: var(--correct);
+    }
+  }
+
+  .loading {
+    color:          var(--text-secondary);
+    font-size:      0.9rem;
+    letter-spacing: 0.08em;
+    animation:      blink 1.5s ease-in-out infinite;
+  }
+
+  .back-link {
+    margin-top: 2rem;
+    font-size:  0.85rem;
+    color:      var(--text-secondary);
+
+    a { color: var(--accent-primary); }
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1;   }
+  50%       { opacity: 0.4; }
+}
