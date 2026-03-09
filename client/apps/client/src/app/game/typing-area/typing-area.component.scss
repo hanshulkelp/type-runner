@@ -1,0 +1,43 @@
+.typing-area {
+  width:     100%;
+  max-width: 800px;
+
+  .quote-display {
+    background:    var(--bg-card);
+    border:        1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding:       1.5rem 2rem;
+    font-size:     1.2rem;
+    line-height:   2;
+    letter-spacing: 0.03em;
+    margin-bottom: 1.5rem;
+    word-break:    break-word;
+
+    // character highlight classes
+    span.correct {
+      color: var(--correct);
+    }
+
+    span.wrong {
+      color:            var(--wrong);
+      text-decoration:  underline;
+      text-underline-offset: 3px;
+    }
+
+    span.pending {
+      color: var(--pending);
+    }
+  }
+
+  .typing-input {
+    font-size:      1.1rem;
+    padding:        1rem 1.25rem;
+    letter-spacing: 0.05em;
+    caret-color:    var(--accent-primary);
+
+    &:focus {
+      border-color: var(--border-focus);
+      box-shadow:   0 0 0 3px var(--accent-glow);
+    }
+  }
+}

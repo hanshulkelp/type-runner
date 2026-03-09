@@ -12,11 +12,22 @@ export const appRoutes: Routes = [
     loadChildren: () =>
       import('./auth/auth.routes').then(m => m.authRoutes),
   },
-//   {
-//     path: 'lobby',
-//     canActivate: [authGuard],
-//     // lobby will be built on Day 2
-//     loadChildren: () =>
-//       import('./lobby/lobby.routes').then(m => m.lobbyRoutes),
-//   },
+  {
+    path: 'game',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./game/game.routes').then(m => m.gameRoutes),
+  },
+  {
+    path: 'leaderboard',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./leaderboard/leaderboard.routes').then(m => m.leaderboardRoutes),
+  },
+  {
+    path: 'lobby',
+    canActivate: [authGuard],
+    loadChildren: () =>
+      import('./lobby/lobby.routes').then(m => m.lobbyRoutes),
+  },
 ];

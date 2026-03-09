@@ -1,0 +1,21 @@
+<nav class="navbar">
+
+  <div class="navbar-brand">
+    <a routerLink="/lobby/create">Type Runner</a>
+  </div>
+
+  <div class="navbar-links">
+    <a routerLink="/lobby/create">Create Room</a>
+    <a routerLink="/lobby/join">Join Room</a>
+    <a routerLink="/leaderboard">Leaderboard</a>
+  </div>
+
+  <div class="navbar-user">
+    <!-- show logged in username -->
+    @if (username()) {
+      <span class="username">{{ username() }}</span>
+      <button (click)="logout()">Logout</button>
+    }
+  </div>
+
+</nav>

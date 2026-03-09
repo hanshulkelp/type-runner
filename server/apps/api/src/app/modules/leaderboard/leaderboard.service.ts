@@ -14,11 +14,13 @@ export class LeaderboardService {
   // Returns the top 10 players sorted by best WPM
   async getTopTen(): Promise<Leaderboard[]> {
     return this.leaderboardModel.findAll({
-      // join users table to get the username alongside leaderboard stats
       include: [{ model: User, attributes: ['username'] }],
-      // specific columns only — no SELECT *
       attributes: ['bestWpm', 'avgAccuracy', 'racesPlayed', 'wins'],
-      order: [['bestWpm', 'DESC']],
+      // sort by wins first, then best WPM as tiebreaker
+      order: [
+        ['wins', 'DESC'],
+        ['bestWpm', 'DESC'],
+      ],
       limit: 10,
     });
   }
@@ -35,11 +37,11 @@ export class LeaderboardService {
     if (!existingRow) {
       // first race for this user — create a new row
       await this.leaderboardModel.create({
-        userId:      dto.userId,
-        bestWpm:     dto.wpm,
+        userId: dto.userId,
+        bestWpm: dto.wpm,
         avgAccuracy: dto.accuracy,
         racesPlayed: 1,
-        wins:        hasWon ? 1 : 0,
+        wins: hasWon ? 1 : 0,
       });
       return;
     }
@@ -53,10 +55,10 @@ export class LeaderboardService {
       (existingRow.racesPlayed + 1);
 
     await existingRow.update({
-      bestWpm:     updatedBestWpm,
+      bestWpm: updatedBestWpm,
       avgAccuracy: parseFloat(updatedAvgAccuracy.toFixed(2)),
       racesPlayed: existingRow.racesPlayed + 1,
-      wins:        existingRow.wins + (hasWon ? 1 : 0),
+      wins: existingRow.wins + (hasWon ? 1 : 0),
     });
   }
 }

@@ -1,0 +1,54 @@
+.join-room {
+  min-height:      calc(100vh - 64px);
+  display:         flex;
+  align-items:     center;
+  justify-content: center;
+  padding:         2rem;
+}
+
+.card {
+  width:         100%;
+  max-width:     480px;
+  padding:       2.5rem;
+  background:    var(--bg-card);
+  border:        1px solid var(--border-color);
+  border-radius: var(--radius);
+
+  h2 {
+    text-align:    center;
+    margin-bottom: 0.5rem;
+  }
+
+  .subtitle {
+    text-align:    center;
+    color:         var(--text-secondary);
+    font-size:     0.85rem;
+    margin-bottom: 2rem;
+  }
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+
+  label {
+    display:        block;
+    font-size:      0.85rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color:          var(--text-secondary);
+    margin-bottom:  0.75rem;
+  }
+}
+
+.lobby-link {
+  display:    block;
+  text-align: center;
+  margin-top: 1.5rem;
+  font-size:  0.85rem;
+  color:      var(--text-secondary);
+
+  a {
+    color:       var(--accent-primary);
+    margin-left: 0.25rem;
+  }
+}
