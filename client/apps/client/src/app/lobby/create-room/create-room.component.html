@@ -1,0 +1,36 @@
+<div class="create-room">
+  <div class="card">
+    <h2>Create Room</h2>
+    <p class="subtitle">Set up your race and invite others.</p>
+
+    <div class="form-group">
+      <label for="maxPlayers">
+        Max Players <span>{{ maxPlayers() }}</span>
+      </label>
+      <input
+        id="maxPlayers"
+        type="range"
+        min="2"
+        max="10"
+        [value]="maxPlayers()"
+        (input)="onMaxPlayersChange($event)"
+      />
+      <div class="slider-labels">
+        <span>2</span>
+        <span>10</span>
+      </div>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <button class="create-btn" (click)="createRoom()" [disabled]="isLoading()">
+      {{ isLoading() ? 'Creating...' : 'Start Engine' }}
+    </button>
+
+    <p class="lobby-link">
+      Already have a room? <a routerLink="/lobby/join">Join here</a>
+    </p>
+  </div>
+</div>

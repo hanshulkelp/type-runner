@@ -1,0 +1,47 @@
+.results {
+  width:      100%;
+  max-width:  700px;
+  text-align: center;
+
+  h2 {
+    margin-bottom: 2rem;
+  }
+
+  table {
+    margin-bottom: 2rem;
+
+    // highlight winner row
+    tbody tr:first-child td {
+      color: var(--accent-primary);
+
+      &:first-child::before {
+        content: '🏆 ';
+      }
+    }
+  }
+}
+
+.result-actions {
+  display:         flex;
+  gap:             1rem;
+  justify-content: center;
+  margin-top:      1rem;
+
+  button {
+    width:   auto;
+    padding: 0.85rem 2rem;
+  }
+
+  .secondary-btn {
+    background: transparent;
+    border:     1px solid var(--border-color);
+    color:      var(--text-secondary);
+
+    &:hover:not(:disabled) {
+      border-color: var(--accent-primary);
+      color:        var(--text-primary);
+      background:   transparent;
+      box-shadow:   none;
+    }
+  }
+}
