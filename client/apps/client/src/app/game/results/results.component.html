@@ -1,0 +1,36 @@
+<div class="results">
+  <h2>Race Results</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Rank</th>
+        <th>Player</th>
+        <th>WPM</th>
+        <th>Accuracy</th>
+        <th>Time</th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (result of sortedResults(); track result.userId) {
+        <tr>
+          <td>{{ result.position }}</td>
+          <td>{{ result.username }}</td>
+          <td>{{ result.wpm }} wpm</td>
+          <td>{{ result.accuracy }}%</td>
+          <td>{{ formatTime(result.timeTaken) }}</td>
+        </tr>
+      }
+    </tbody>
+  </table>
+
+  <!-- navigation buttons -->
+  <div class="result-actions">
+    <button class="secondary-btn" (click)="goToLeaderboard()">
+      View Leaderboard
+    </button>
+    <button (click)="goToLobby()">
+      Race Again
+    </button>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+<div class="leaderboard">
+  <h2>Leaderboard</h2>
+  <p class="subtitle">Top 10 racers of all time</p>
+
+  @if (isLoading()) {
+    <p class="loading">Loading...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading() && !errorMessage()) {
+    <table class="leaderboard-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Player</th>
+          <th>Best WPM</th>
+          <th>Avg Accuracy</th>
+          <th>Races</th>
+          <th>Wins</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (row of rows(); track row.user.username; let i = $index) {
+          <tr>
+            <td>{{ i + 1 }}</td>
+            <td>{{ row.user.username }}</td>
+            <td>{{ row.bestWpm }} wpm</td>
+            <td>{{ row.avgAccuracy }}%</td>
+            <td>{{ row.racesPlayed }}</td>
+            <td>{{ row.wins }}</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+
+  <p class="back-link">
+    Ready to race? <a routerLink="/lobby/create">Create a room</a>
+  </p>
+</div>

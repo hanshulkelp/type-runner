@@ -1,0 +1,36 @@
+<div class="game-container">
+
+  @if (gameService.phase() === 'waiting') {
+    <app-waiting-room
+      [players]="gameService.roomState()?.players ?? []"
+      [maxPlayers]="gameService.roomState()?.maxPlayers ?? 0"
+      [roomId]="roomId"
+      (playerReady)="onPlayerReady()"
+    />
+  }
+
+  @if (gameService.phase() === 'countdown') {
+    <app-countdown
+      [seconds]="gameService.countdown()"
+    />
+  }
+
+  @if (gameService.phase() === 'racing') {
+    <app-progress-bar
+      [players]="gameService.allProgress()"
+    />
+    <app-typing-area
+      [quote]="gameService.raceStart()?.quote ?? ''"
+      [startTime]="gameService.raceStart()?.startTime ?? 0"
+      (progressUpdate)="onProgressUpdate($event)"
+      (raceFinished)="onRaceFinished($event)"
+    />
+  }
+
+  @if (gameService.phase() === 'results') {
+    <app-results
+      [results]="gameService.raceEnd() ?? []"
+    />
+  }
+
+</div>
