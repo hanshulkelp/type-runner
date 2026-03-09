@@ -28,4 +28,8 @@
     [disabled]="isReady()">
     {{ isReady() ? 'Waiting for others...' : 'Ready' }}
   </button>
+
+  <button class="leave-btn" (click)="onLeaveClick()">
+    Leave Room
+  </button>
 </div>

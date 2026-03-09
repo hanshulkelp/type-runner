@@ -45,8 +45,9 @@ export class RaceService {
 
     server.to(roomId).emit(WsEvents.RACE_END, results);
 
-    // one upsert per player — the only Postgres write in the entire race lifecycle
+    // one upsert per finisher — left (DNF) players are skipped
     for (const result of results) {
+      if (result.left) continue;
       await this.leaderboardService.upsertStats({
         userId:   result.userId,
         wpm:      result.wpm,
@@ -56,23 +57,43 @@ export class RaceService {
     }
   }
 
-  // Builds the RaceResult array sorted by finish time, assigning positions
+  // Builds the RaceResult array sorted by accuracy desc, then timeTaken asc.
+  // Highest accuracy wins; shortest time breaks ties.
+  // Finished players sort first; left (DNF) players are appended at the end
   private assembleResults(players: RacePlayer[]): RaceResult[] {
-    return players
-      // type predicate ensures TypeScript knows timeTaken is a number after this filter
-      .filter((player): player is RacePlayer & { timeTaken: number } =>
-        player.timeTaken !== undefined,
+    const finishers = players
+      .filter((p): p is RacePlayer & { timeTaken: number } =>
+        p.timeTaken !== undefined && !p.left,
       )
-      .sort((a, b) => a.timeTaken - b.timeTaken)
+      .sort((a, b) => {
+        // primary:   higher accuracy ranks first
+        if (b.accuracy !== a.accuracy) return b.accuracy - a.accuracy;
+        // secondary: shorter time ranks first (tie-breaker)
+        return a.timeTaken - b.timeTaken;
+      })
       .map((player, index) => ({
         userId:    player.userId,
         username:  player.username,
         wpm:       player.wpm,
         accuracy:  player.accuracy,
         timeTaken: player.timeTaken,
-        // position is 1-based — first place is 1, not 0
         position:  index + 1,
+        left:      false as const,
       }));
+
+    const dnf = players
+      .filter(p => p.left)
+      .map((player, index) => ({
+        userId:    player.userId,
+        username:  player.username,
+        wpm:       player.wpm,
+        accuracy:  player.accuracy,
+        timeTaken: 0,
+        position:  finishers.length + index + 1,
+        left:      true as const,
+      }));
+
+    return [...finishers, ...dnf];
   }
 
   // Calculates accuracy by comparing typed input against the original quote

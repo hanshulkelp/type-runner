@@ -8,7 +8,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { WsEvents } from '@type-runner/shared-types';
+import { WsEvents, RoomStatus } from '@type-runner/shared-types';
 import { RoomsService } from '../rooms/rooms.service';
 import { RaceService } from './race.service';
 import { ProgressDto } from './dto/progress.dto';
@@ -57,9 +57,14 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
   }
 
   // Called automatically by NestJS when a client disconnects
-  handleDisconnect(client: Socket): void {
-    // clean up the throttle tracking entry for this socket
+  async handleDisconnect(client: Socket): Promise<void> {
     this.progressTimestamps.delete(client.id);
+
+    const roomId = client.data['roomId'] as string | undefined;
+    const user   = client.data['user']   as { id: string } | undefined;
+    if (!roomId || !user) return;
+
+    await this.handlePlayerExit(client, roomId, user.id);
   }
 
   // checks if the client has a verified user attached
@@ -78,17 +83,38 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
   ): Promise<void> {
     if (!this.isAuthenticated(client)) return;
 
-    // socket.io room — groups sockets so we can broadcast to all players in a room
-    client.join(data.roomId);
-
     const room = await this.roomsService.getRoom(data.roomId);
     if (!room) return;
 
-    // send current room snapshot only to the player who just joined
-    client.emit(WsEvents.ROOM_STATE, room);
+    // reject rejoins — a refresh during a live race should send the player back to lobby
+    if (room.status !== RoomStatus.WAITING) {
+      client.emit(WsEvents.ROOM_REJECTED, { reason: 'Race already in progress' });
+      return;
+    }
 
-    // notify all other players already in the room that someone new joined
-    client.to(data.roomId).emit(WsEvents.PLAYER_JOINED, client.data['user']);
+    // socket.io room — groups sockets so we can broadcast to all players in a room
+    client.join(data.roomId);
+
+    // store the roomId on the socket so handleDisconnect can clean up on abrupt exit
+    client.data['roomId'] = data.roomId;
+
+    // broadcast the full room state to everyone in the room (including the new joiner)
+    // this ensures all existing players see the updated player list immediately
+    this.server.to(data.roomId).emit(WsEvents.ROOM_STATE, room);
+  }
+
+  // Client explicitly leaves a room — removes them from Redis and notifies others
+  @SubscribeMessage(WsEvents.LEAVE_ROOM)
+  async handleLeaveRoom(
+    @ConnectedSocket() client: Socket,
+    @MessageBody() data: { roomId: string },
+  ): Promise<void> {
+    if (!this.isAuthenticated(client)) return;
+
+    client.leave(data.roomId);
+    client.data['roomId'] = undefined;
+
+    await this.handlePlayerExit(client, data.roomId, client.data['user'].id);
   }
 
   // Client marks themselves as ready — race starts when all players are ready
@@ -184,14 +210,55 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     const updatedRoom = await this.roomsService.getRoom(data.roomId);
     if (!updatedRoom) return;
 
-    // check if every player has finished
-    const allFinished = updatedRoom.players.every(
-      (player) => player.timeTaken !== undefined,
-    );
+    // check if every non-left player has finished
+    const activePlayers = updatedRoom.players.filter(p => !p.left);
+    const allFinished   = activePlayers.length > 0 &&
+                          activePlayers.every(p => p.timeTaken !== undefined);
 
-    // end the race as soon as the last player finishes
+    // end the race as soon as the last active player finishes
     if (allFinished) {
       await this.raceService.handleRaceEnd(data.roomId, this.server);
+    }
+  }
+  // Shared exit logic for both explicit leave and abrupt disconnect
+  // In WAITING: removes the player entirely
+  // In RACING/COUNTDOWN: marks the player as left (DNF) and checks if race should end
+  private async handlePlayerExit(
+    client: Socket,
+    roomId: string,
+    userId: string,
+  ): Promise<void> {
+    const room = await this.roomsService.getRoom(roomId);
+    if (!room) return;
+
+    const isRacing =
+      room.status === RoomStatus.RACING ||
+      room.status === RoomStatus.COUNTDOWN;
+
+    if (!isRacing) {
+      // waiting room — just remove the player and refresh the list for others
+      const updatedRoom = await this.roomsService.removePlayer(roomId, userId);
+      if (updatedRoom) {
+        this.server.to(roomId).emit(WsEvents.ROOM_STATE, updatedRoom);
+      }
+      return;
+    }
+
+    // mid-race — keep the player in results as DNF and check if race should end
+    const updatedRoom = await this.roomsService.markPlayerLeft(roomId, userId);
+    if (!updatedRoom) return;
+
+    // broadcast updated player list so others see the "left" indicator
+    this.server.to(roomId).emit(WsEvents.ROOM_STATE, updatedRoom);
+
+    // if every remaining active player is done, end the race immediately
+    const activePlayers = updatedRoom.players.filter(p => !p.left);
+    const allDone =
+      activePlayers.length > 0 &&
+      activePlayers.every(p => p.timeTaken !== undefined);
+
+    if (allDone) {
+      await this.raceService.handleRaceEnd(roomId, this.server);
     }
   }
 }

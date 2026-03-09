@@ -38,6 +38,9 @@ export class GameService {
   readonly raceStart   = signal<RaceStartData | null>(null);
   readonly raceEnd     = signal<RaceResult[] | null>(null);
 
+  // signal — true when the server rejects entry (e.g. joining a room mid-race via refresh)
+  readonly rejected    = signal(false);
+
   // computed signal — derives the current game phase from the state signals
   readonly phase = computed<'waiting' | 'countdown' | 'racing' | 'results'>(() => {
     if (this.raceEnd())   return 'results';
@@ -68,6 +71,10 @@ export class GameService {
     this.socketService.on<RaceResult[]>(WsEvents.RACE_END)
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(results => this.raceEnd.set(results));
+
+    this.socketService.on<{ reason: string }>(WsEvents.ROOM_REJECTED)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.rejected.set(true));
   }
 
   // resets all signals — called when leaving the game page
@@ -77,5 +84,6 @@ export class GameService {
     this.countdown.set(null);
     this.raceStart.set(null);
     this.raceEnd.set(null);
+    this.rejected.set(false);
   }
 }

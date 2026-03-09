@@ -49,16 +49,20 @@ export class LeaderboardService {
     // keep the highest WPM this user has ever achieved
     const updatedBestWpm = Math.max(existingRow.bestWpm, dto.wpm);
 
+    // Sequelize returns DECIMAL columns as strings — parseFloat ensures correct arithmetic
+    const oldAvgAccuracy = parseFloat(existingRow.avgAccuracy as unknown as string);
+    const oldRacesPlayed = existingRow.racesPlayed;
+
     // rolling average: (oldAvg * oldCount + newValue) / newCount
     const updatedAvgAccuracy =
-      (existingRow.avgAccuracy * existingRow.racesPlayed + dto.accuracy) /
-      (existingRow.racesPlayed + 1);
+      (oldAvgAccuracy * oldRacesPlayed + dto.accuracy) /
+      (oldRacesPlayed + 1);
 
     await existingRow.update({
-      bestWpm: updatedBestWpm,
+      bestWpm:     updatedBestWpm,
       avgAccuracy: parseFloat(updatedAvgAccuracy.toFixed(2)),
-      racesPlayed: existingRow.racesPlayed + 1,
-      wins: existingRow.wins + (hasWon ? 1 : 0),
+      racesPlayed: oldRacesPlayed + 1,
+      wins:        existingRow.wins + (hasWon ? 1 : 0),
     });
   }
 }

@@ -11,13 +11,31 @@
     margin-bottom: 2rem;
 
     // highlight winner row
-    tbody tr:first-child td {
+    tbody tr:first-child:not(.left-row) td {
       color: var(--accent-primary);
 
       &:first-child::before {
         content: '🏆 ';
       }
     }
+
+    // dimmed row for players who left mid-race
+    tbody tr.left-row td {
+      color:   var(--text-muted, #666);
+      opacity: 0.6;
+    }
+  }
+  .left-badge {
+    display:       inline-block;
+    margin-left:   0.4rem;
+    font-size:     0.65rem;
+    font-weight:   700;
+    letter-spacing: 0.08em;
+    padding:       0.1rem 0.4rem;
+    border:        1px solid var(--wrong, #f44336);
+    color:         var(--wrong, #f44336);
+    border-radius: 3px;
+    vertical-align: middle;
   }
 }
 

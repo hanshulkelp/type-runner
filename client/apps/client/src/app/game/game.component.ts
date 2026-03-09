@@ -1,11 +1,13 @@
 import {
   ChangeDetectionStrategy,
   Component,
+  effect,
   inject,
+  OnDestroy,
   OnInit,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { WsEvents } from '@type-runner/shared-types';
 import { SocketService } from '../core/socket/socket.service';
 import { GameService } from './game.service';
@@ -30,15 +32,29 @@ import { ResultsComponent } from './results/results.component';
   styleUrl: './game.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class GameComponent implements OnInit {
+export class GameComponent implements OnInit, OnDestroy {
   private readonly route         = inject(ActivatedRoute);
+  private readonly router        = inject(Router);
   private readonly socketService = inject(SocketService);
   readonly gameService           = inject(GameService);
 
   // room ID read from the URL — /game/:roomId
   roomId = '';
 
+  constructor() {
+    // effect runs in injection context — watches the rejected signal and redirects
+    // this handles page refreshes mid-race, where the server rejects the JOIN_ROOM
+    effect(() => {
+      if (this.gameService.rejected()) {
+        this.router.navigate(['/lobby']);
+      }
+    });
+  }
+
   ngOnInit(): void {
+    // reset any stale state from a previous race before setting up the new one
+    this.gameService.resetState();
+
     this.roomId = this.route.snapshot.params['roomId'];
 
     // get the stored token and connect the socket
@@ -73,5 +89,19 @@ export class GameComponent implements OnInit {
       timeTaken: event.timeTaken,
       rawInput:  event.rawInput,
     });
+  }
+
+  // called when Angular destroys this component — covers all navigation paths
+  // (leave button, race again, browser back, etc.)
+  ngOnDestroy(): void {
+    this.socketService.emit(WsEvents.LEAVE_ROOM, { roomId: this.roomId });
+    this.socketService.disconnect();
+    this.gameService.resetState();
+  }
+
+  // called when the player explicitly clicks the leave button
+  // emits LEAVE_ROOM immediately then lets ngOnDestroy handle the rest
+  onLeaveRoom(): void {
+    this.router.navigate(['/lobby']);
   }
 }

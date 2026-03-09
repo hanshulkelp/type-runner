@@ -26,6 +26,9 @@ export class WaitingRoomComponent {
   // emits when the local player clicks the ready button
   readonly playerReady = output<void>();
 
+  // emits when the local player clicks the leave button
+  readonly leaveRoom = output<void>();
+
   // signal — tracks if the local player has already clicked ready
   readonly isReady = signal(false);
 
@@ -38,6 +41,10 @@ export class WaitingRoomComponent {
   onReadyClick(): void {
     this.isReady.set(true);
     this.playerReady.emit();
+  }
+
+  onLeaveClick(): void {
+    this.leaveRoom.emit();
   }
 
   copyRoomId(): void {

@@ -7,3 +7,21 @@
   align-items:    center;
   justify-content: center;
 }
+
+.leave-race-btn {
+  margin-top: 1.25rem;
+  background: transparent;
+  border:     1px solid var(--wrong, #f44336);
+  color:      var(--wrong, #f44336);
+  font-size:  0.85rem;
+  padding:    0.6rem 1.5rem;
+
+  &:hover:not(:disabled) {
+    background: rgba(244, 67, 54, 0.1);
+    box-shadow: none;
+  }
+}
+
+.leave-race-btn{
+  width: 200px;
+}

@@ -7,7 +7,9 @@ export class SocketService {
   private socket!: Socket;
 
   // Creates a new socket connection using the JWT token for authentication
+  // Disconnects any existing socket first to prevent dangling connections
   connect(token: string): void {
+    this.socket?.disconnect();
     this.socket = io('http://localhost:3000', {
       // token is sent in the handshake so the server can verify it in handleConnection
       auth: { token },

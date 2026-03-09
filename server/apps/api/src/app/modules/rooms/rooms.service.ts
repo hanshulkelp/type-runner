@@ -7,6 +7,7 @@ import { RedisService } from '../redis/redis.service';
 export interface RacePlayer extends PlayerProgress {
   ready:      boolean; // tracks if player clicked ready in waiting room
   timeTaken?: number;  // only set when the player has finished typing
+  left?:      boolean; // true when the player disconnected mid-race
 }
 
 // Shape of a room stored in Redis
@@ -167,5 +168,33 @@ export class RoomsService {
     player.timeTaken = timeTaken;
 
     await this.saveRoom(room);
+  }
+
+  // Removes a player from the room and returns the updated room state
+  // Returns null if the room no longer exists
+  async removePlayer(roomId: string, userId: string): Promise<RoomState | null> {
+    const room = await this.getRoom(roomId);
+    if (!room) return null;
+
+    room.players = room.players.filter(p => p.userId !== userId);
+    await this.saveRoom(room);
+    return room;
+  }
+
+  // Marks a player as having left mid-race without removing them from the list
+  // Uses MAX_SAFE_INTEGER as a sentinel timeTaken so they count as "done" for
+  // the all-finished check but sort to the bottom of the results table
+  async markPlayerLeft(roomId: string, userId: string): Promise<RoomState | null> {
+    const room = await this.getRoom(roomId);
+    if (!room) return null;
+
+    const player = room.players.find(p => p.userId === userId);
+    if (player) {
+      player.left      = true;
+      player.timeTaken = Number.MAX_SAFE_INTEGER;
+    }
+
+    await this.saveRoom(room);
+    return room;
   }
 }

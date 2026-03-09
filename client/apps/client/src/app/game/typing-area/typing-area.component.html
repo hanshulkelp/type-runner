@@ -16,6 +16,7 @@
     autocapitalize="off"
     spellcheck="false"
     (input)="onInput($event)"
+    (select)="$event.preventDefault()"
     (paste)="$event.preventDefault()"
     (contextmenu)="$event.preventDefault()"
   />

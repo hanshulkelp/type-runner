@@ -96,12 +96,30 @@
 }
 
 .ready-btn {
-  max-width: 280px;
-  margin:    0 auto;
+  max-width:     280px;
+  margin:        0 auto;
+  margin-bottom: 0.75rem;
   display:   block;
 }
 
 @keyframes blink {
   0%, 100% { opacity: 1;   }
   50%       { opacity: 0.4; }
+}
+
+.leave-btn {
+  max-width:  280px;
+  width:      100%;
+  margin:     0 auto;
+  display:    block;
+  background: transparent;
+  border:     1px solid var(--wrong, #f44336);
+  color:      var(--wrong, #f44336);
+  font-size:  0.85rem;
+  padding:    0.6rem 1rem;
+
+  &:hover:not(:disabled) {
+    background: rgba(244, 67, 54, 0.1);
+    box-shadow: none;
+  }
 }
