@@ -2,22 +2,20 @@ import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { CurrentUser } from '../auth/current-user.decorator';
 import { CreateRoomDto } from './dto/create-room.dto';
-// import { JoinRoomDto } from './dto/join-room.dto';
 import { RoomsService } from './rooms.service';
+import { Throttle, ThrottlerGuard } from '@nestjs/throttler';
 
-// Shape of the JWT payload attached to the request by JwtAuthGuard
 interface JwtUser {
   id: string;
   username: string;
 }
 
 @Controller('rooms')
-@UseGuards(JwtAuthGuard) // every route in this controller requires a valid JWT
+@UseGuards(JwtAuthGuard)
 export class RoomsController {
   constructor(private readonly roomsService: RoomsService) {}
 
   // POST /api/rooms
-  // Creates a new room and returns the generated room ID
   @Post()
   async createRoom(
     @Body() dto: CreateRoomDto,
@@ -28,7 +26,9 @@ export class RoomsController {
   }
 
   // POST /api/rooms/:id/join
-  // Adds the current user to an existing room
+  // stricter limit — max 5 join attempts per minute per IP
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { ttl: 60000, limit: 5 } })
   @Post(':id/join')
   async joinRoom(
     @Param('id') roomId: string,

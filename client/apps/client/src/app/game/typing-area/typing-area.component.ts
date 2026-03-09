@@ -55,6 +55,18 @@ export class TypingAreaComponent implements OnInit {
     this.quoteChars().map((_, index) => this.getCharClass(index))
   );
 
+  // computed signal — live accuracy: correct chars / chars typed so far
+  readonly liveAccuracy = computed(() => {
+    const typed = this.typedText();
+    if (typed.length === 0) return 100;
+    const quote = this.quote();
+    let correctChars = 0;
+    for (let i = 0; i < typed.length; i++) {
+      if (typed[i] === quote[i]) correctChars++;
+    }
+    return Math.round((correctChars / typed.length) * 100);
+  });
+
   // used to push raw input events into the throttled stream
   private readonly typingSubject = new Subject<string>();
 

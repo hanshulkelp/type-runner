@@ -15,7 +15,6 @@ import { ProgressDto } from './dto/progress.dto';
 import { FinishedDto } from './dto/finished.dto';
 import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
-@WebSocketGateway({ cors: { origin: '*' } })
 
 @WebSocketGateway({ cors: { origin: 'http://localhost:4200' } })
 export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
@@ -47,7 +46,10 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
       });
 
       // store verified identity server-side — never trust identity from message body
-      client.data['user'] = { id: payload['sub'], username: payload['username'] };
+      client.data['user'] = {
+        id: payload['sub'],
+        username: payload['username'],
+      };
     } catch {
       // invalid or expired token — disconnect immediately
       client.disconnect();
@@ -60,12 +62,22 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.progressTimestamps.delete(client.id);
   }
 
+  // checks if the client has a verified user attached
+  // disconnects and returns false if the user is not authenticated
+  private isAuthenticated(client: Socket): boolean {
+    const hasUser = client.data['user'] !== undefined;
+    if (!hasUser) client.disconnect();
+    return hasUser;
+  }
+
   // Client joins a WebSocket room channel to receive room-specific broadcast events
   @SubscribeMessage(WsEvents.JOIN_ROOM)
   async handleJoinRoom(
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { roomId: string },
   ): Promise<void> {
+    if (!this.isAuthenticated(client)) return;
+
     // socket.io room — groups sockets so we can broadcast to all players in a room
     client.join(data.roomId);
 
@@ -85,13 +97,15 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: { roomId: string },
   ): Promise<void> {
+    if (!this.isAuthenticated(client)) return;
+
     const room = await this.roomsService.markPlayerReady(
       data.roomId,
       client.data['user'].id,
     );
 
     const hasEnoughPlayers = room.players.length >= 2;
-    const allPlayersReady  = room.players.every(player => player.ready);
+    const allPlayersReady = room.players.every((player) => player.ready);
 
     // only start countdown when there are at least 2 players and all are ready
     if (hasEnoughPlayers && allPlayersReady) {
@@ -105,8 +119,10 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: ProgressDto,
   ): Promise<void> {
-    const now               = Date.now();
-    const lastUpdateAt      = this.progressTimestamps.get(client.id) ?? 0;
+    if (!this.isAuthenticated(client)) return;
+
+    const now = Date.now();
+    const lastUpdateAt = this.progressTimestamps.get(client.id) ?? 0;
     const hasEnoughTimePassed = now - lastUpdateAt >= 200;
 
     // drop updates that arrive faster than 200ms
@@ -114,9 +130,9 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     this.progressTimestamps.set(client.id, now);
 
     // verify the socket's user actually belongs to this room before updating
-    const room     = await this.roomsService.getRoom(data.roomId);
+    const room = await this.roomsService.getRoom(data.roomId);
     const isInRoom = room?.players.some(
-      player => player.userId === client.data['user'].id,
+      (player) => player.userId === client.data['user'].id,
     );
     if (!isInRoom) return;
 
@@ -131,7 +147,9 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     if (!updatedRoom) return;
 
     // broadcast updated progress of all players to everyone in the room
-    this.server.to(data.roomId).emit(WsEvents.PROGRESS_BROADCAST, updatedRoom.players);
+    this.server
+      .to(data.roomId)
+      .emit(WsEvents.PROGRESS_BROADCAST, updatedRoom.players);
   }
 
   // Client signals they finished typing the entire quote
@@ -140,12 +158,20 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
     @ConnectedSocket() client: Socket,
     @MessageBody() data: FinishedDto,
   ): Promise<void> {
+    if (!this.isAuthenticated(client)) return;
+
     const room = await this.roomsService.getRoom(data.roomId);
     if (!room) return;
 
     // calculate final stats server-side — never trust values sent from client
-    const accuracy = this.raceService.calculateAccuracy(data.rawInput, room.quote ?? '');
-    const wpm      = this.raceService.calculateWpm(data.rawInput.length, data.timeTaken);
+    const accuracy = this.raceService.calculateAccuracy(
+      data.rawInput,
+      room.quote ?? '',
+    );
+    const wpm = this.raceService.calculateWpm(
+      data.rawInput.length,
+      data.timeTaken,
+    );
 
     await this.roomsService.savePlayerResult(
       data.roomId,
@@ -160,7 +186,7 @@ export class RaceGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
     // check if every player has finished
     const allFinished = updatedRoom.players.every(
-      player => player.timeTaken !== undefined,
+      (player) => player.timeTaken !== undefined,
     );
 
     // end the race as soon as the last player finishes

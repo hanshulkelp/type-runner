@@ -3,6 +3,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
 import { SequelizeModule } from '@nestjs/sequelize';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { dbConfig } from '../config/db.config';
 import { UsersModule } from './modules/user/users.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -19,6 +20,12 @@ import { LeaderboardModule } from './modules/leaderboard/leaderboard.module';
 
     // connects to Postgres using values from .env
     SequelizeModule.forRootAsync(dbConfig),
+
+    // rate limiting — max 10 requests per minute per IP globally
+    ThrottlerModule.forRoot([{
+      ttl:   60000, // 1 minute in milliseconds
+      limit: 10,    // max 10 requests per IP per minute
+    }]),
 
     UsersModule,
     AuthModule,

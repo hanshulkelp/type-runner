@@ -20,4 +20,12 @@
     (contextmenu)="$event.preventDefault()"
   />
 
+  <!-- live accuracy indicator — updates on every keystroke -->
+  <div class="accuracy-display">
+    <span class="accuracy-label">Accuracy</span>
+    <span class="accuracy-value" [class.accuracy-low]="liveAccuracy() < 80">
+      {{ liveAccuracy() }}%
+    </span>
+  </div>
+
 </div>

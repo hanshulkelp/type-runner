@@ -40,4 +40,26 @@
       box-shadow:   0 0 0 3px var(--accent-glow);
     }
   }
+
+  .accuracy-display {
+    display:          flex;
+    align-items:      center;
+    gap:              0.5rem;
+    margin-top:       0.75rem;
+    font-size:        0.9rem;
+
+    .accuracy-label {
+      color: var(--text-muted, #888);
+    }
+
+    .accuracy-value {
+      font-weight: 600;
+      color:       var(--correct, #4caf50);
+      transition:  color 0.2s ease;
+
+      &.accuracy-low {
+        color: var(--wrong, #f44336);
+      }
+    }
+  }
 }
